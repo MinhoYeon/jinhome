@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import AnimatedRabbit from './components/AnimatedRabbit';
 
 export default function Home() {
@@ -117,13 +118,15 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-              <motion.button
-                className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-full shadow-xl hover:shadow-2xl transition-shadow text-lg"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                캐릭터 둘러보기 🎨
-              </motion.button>
+              <Link href="/marketplace">
+                <motion.button
+                  className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-full shadow-xl hover:shadow-2xl transition-shadow text-lg w-full sm:w-auto"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  캐릭터 둘러보기 🎨
+                </motion.button>
+              </Link>
               <motion.button
                 className="px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-shadow text-lg"
                 whileHover={{ scale: 1.05 }}
@@ -227,13 +230,15 @@ export default function Home() {
           <p className="text-xl text-white/90 mb-8">
             첫 구매 시 20% 할인 혜택을 드립니다
           </p>
-          <motion.button
-            className="px-10 py-5 bg-white text-purple-600 font-bold rounded-full text-xl shadow-xl hover:shadow-2xl transition-shadow"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            무료 캐릭터 받기 🎁
-          </motion.button>
+          <Link href="/marketplace">
+            <motion.button
+              className="px-10 py-5 bg-white text-purple-600 font-bold rounded-full text-xl shadow-xl hover:shadow-2xl transition-shadow"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              무료 캐릭터 받기 🎁
+            </motion.button>
+          </Link>
         </motion.div>
       </motion.section>
 
