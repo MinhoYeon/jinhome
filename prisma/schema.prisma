@@ -1,0 +1,103 @@
+// Prisma schema file
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("user") // "user" or "admin"
+  createdAt DateTime @default(now())
+
+  // Relations
+  orders    Order[]
+  reviews   Review[]
+}
+
+model Character {
+  id             String   @id
+  name           String
+  category       String
+  animationType  String
+  price          Int
+  originalPrice  Int?
+  description    String
+  features       String[]
+  format         String
+  previewComponent String?
+  tags           String[]
+  rating         Float    @default(0)
+  downloads      Int      @default(0)
+  createdAt      DateTime @default(now())
+  colors         String[]
+
+  // Relations
+  reviews        Review[]
+  orderItems     OrderItem[]
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  rating      Int
+  comment     String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([characterId])
+  @@index([userId])
+}
+
+model Order {
+  id            String   @id @default(cuid())
+  total         Int
+  status        String   @default("pending") // "pending", "completed", "failed"
+  paymentMethod String
+  email         String
+  name          String
+  phone         String?
+  createdAt     DateTime @default(now())
+
+  // Payment info
+  impUid        String?
+  merchantUid   String?
+
+  // Relations
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  items         OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  quantity    Int
+  price       Int
+
+  // Relations
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([characterId])
+}
