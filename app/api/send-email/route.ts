@@ -1,28 +1,47 @@
 import { NextResponse } from 'next/server';
+import { v4 as uuidv4 } from 'uuid';
+import { sendOrderConfirmationEmail } from '../../lib/email';
+import db from '../../lib/db';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { to, name, items, total } = body;
+    const { to, name, items, total, userId } = body;
 
-    // 실제 프로덕션에서는 Resend, SendGrid, Nodemailer 등을 사용
-    // 여기서는 시뮬레이션만 합니다
-    console.log('📧 이메일 전송 시뮬레이션:');
-    console.log('받는 사람:', to);
-    console.log('이름:', name);
-    console.log('주문 상품:', items.map((item: any) => `${item.character.name} x ${item.quantity}`).join(', '));
-    console.log('총 금액:', total);
+    // 주문 ID 생성
+    const orderId = uuidv4();
 
-    // 이메일 템플릿 생성
-    const emailContent = generateEmailTemplate(name, items, total);
+    // 주문을 DB에 저장
+    const newOrder = {
+      id: orderId,
+      userId: userId || 'guest',
+      items: items.map((item: any) => ({
+        characterId: item.character.id,
+        quantity: item.quantity,
+        price: item.character.price,
+      })),
+      total,
+      status: 'completed' as const,
+      paymentMethod: 'card',
+      createdAt: new Date().toISOString(),
+      email: to,
+      name,
+    };
 
-    console.log('\n이메일 내용:');
-    console.log(emailContent);
+    db.orders.push(newOrder);
+
+    // Resend를 사용한 이메일 전송
+    const emailResult = await sendOrderConfirmationEmail(to, name, items, total, orderId);
+
+    if (!emailResult.success) {
+      console.error('이메일 전송 실패:', emailResult.error);
+    }
 
     // 성공 응답
     return NextResponse.json({
       success: true,
       message: '이메일이 성공적으로 전송되었습니다.',
+      orderId,
     });
 
   } catch (error) {

@@ -9,6 +9,7 @@ import { AnimalCategory } from '../types/character';
 export default function MarketplacePage() {
   const [selectedCategory, setSelectedCategory] = useState<AnimalCategory | 'all'>('all');
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'price-low' | 'price-high'>('popular');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const categories: { value: AnimalCategory | 'all'; label: string; emoji: string }[] = [
     { value: 'all', label: '전체', emoji: '🎨' },
@@ -24,6 +25,15 @@ export default function MarketplacePage() {
     let filtered = selectedCategory === 'all'
       ? characters
       : characters.filter((c) => c.category === selectedCategory);
+
+    // 검색 필터 적용
+    if (searchQuery) {
+      filtered = filtered.filter((c) =>
+        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
 
     const sorted = [...filtered].sort((a, b) => {
       switch (sortBy) {
@@ -41,7 +51,7 @@ export default function MarketplacePage() {
     });
 
     return sorted;
-  }, [selectedCategory, sortBy]);
+  }, [selectedCategory, sortBy, searchQuery]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-purple-900 dark:to-gray-900 pt-16">
@@ -56,6 +66,28 @@ export default function MarketplacePage() {
             <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               캐릭터 마켓플레이스
             </h1>
+
+            {/* Search Bar */}
+            <div className="max-w-2xl mx-auto mb-6">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="캐릭터 이름, 설명, 태그로 검색..."
+                  className="w-full px-6 py-4 pl-12 border-2 border-gray-300 dark:border-gray-600 rounded-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-lg"
+                />
+                <svg
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+
             <p className="text-xl text-gray-600 dark:text-gray-300">
               {filteredAndSortedCharacters.length}개의 프리미엄 애니메이션 캐릭터
             </p>
