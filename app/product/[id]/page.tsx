@@ -2,14 +2,33 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { characters } from '../../data/characters';
 import AnimatedRabbit from '../../components/AnimatedRabbit';
 import CharacterCard from '../../components/CharacterCard';
+import { useCart } from '../../contexts/CartContext';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { addToCart } = useCart();
+  const [showAdded, setShowAdded] = useState(false);
   const character = characters.find((c) => c.id === params.id);
+
+  const handleAddToCart = () => {
+    if (character) {
+      addToCart(character);
+      setShowAdded(true);
+      setTimeout(() => setShowAdded(false), 2000);
+    }
+  };
+
+  const handleBuyNow = () => {
+    if (character) {
+      addToCart(character);
+      router.push('/checkout');
+    }
+  };
 
   if (!character) {
     return (
@@ -222,6 +241,7 @@ export default function ProductDetailPage() {
 
               <div className="flex gap-3">
                 <motion.button
+                  onClick={handleBuyNow}
                   className="flex-1 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-shadow"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -229,13 +249,25 @@ export default function ProductDetailPage() {
                   지금 구매하기
                 </motion.button>
                 <motion.button
-                  className="px-6 py-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  onClick={handleAddToCart}
+                  className={`px-6 py-4 rounded-xl font-bold transition-colors ${
+                    showAdded
+                      ? 'bg-green-500 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600'
+                  }`}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  title={showAdded ? '장바구니에 추가됨!' : '장바구니에 담기'}
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
+                  {showAdded ? (
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  )}
                 </motion.button>
               </div>
 

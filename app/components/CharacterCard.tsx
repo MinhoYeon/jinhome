@@ -2,8 +2,10 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useState } from 'react';
 import { AnimalCharacter } from '../types/character';
 import AnimatedRabbit from './AnimatedRabbit';
+import { useCart } from '../contexts/CartContext';
 
 interface CharacterCardProps {
   character: AnimalCharacter;
@@ -11,9 +13,19 @@ interface CharacterCardProps {
 }
 
 export default function CharacterCard({ character, index = 0 }: CharacterCardProps) {
+  const { addToCart } = useCart();
+  const [showAdded, setShowAdded] = useState(false);
+
   const discount = character.originalPrice
     ? Math.round(((character.originalPrice - character.price) / character.originalPrice) * 100)
     : 0;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    addToCart(character);
+    setShowAdded(true);
+    setTimeout(() => setShowAdded(false), 2000);
+  };
 
   return (
     <motion.div
@@ -99,15 +111,16 @@ export default function CharacterCard({ character, index = 0 }: CharacterCardPro
                 </div>
               </div>
               <motion.button
-                className="px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full text-sm font-semibold hover:shadow-lg"
+                className={`px-4 py-2 rounded-full text-sm font-semibold hover:shadow-lg ${
+                  showAdded
+                    ? 'bg-green-500 text-white'
+                    : 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                }`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  // TODO: Add to cart functionality
-                }}
+                onClick={handleAddToCart}
               >
-                구매하기
+                {showAdded ? '장바구니에 추가됨! ✓' : '장바구니 담기'}
               </motion.button>
             </div>
           </div>
